@@ -87,6 +87,7 @@ public class Employee {
                 .filter((Employee e)->e.salary>50000)
                 .collect(Collectors.toList());
                  System.out.println(sortEmployeeMoreThan50000);
+        System.out.println("Test");
     }
 }
 
