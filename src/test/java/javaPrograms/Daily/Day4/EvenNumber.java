@@ -22,5 +22,6 @@ public class EvenNumber {
                 .collect(Collectors.toList());
 
         System.out.println(even);
+        System.out.println(even);
     }
 }
