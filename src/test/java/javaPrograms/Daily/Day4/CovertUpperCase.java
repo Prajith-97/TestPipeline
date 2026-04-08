@@ -11,6 +11,7 @@ public class CovertUpperCase {
             .map(s -> s.toUpperCase())
             .collect(Collectors.toList());
     System.out.println(upper);
+        System.out.println(upper);
     }
 }
 //map() is used to transform elements.
