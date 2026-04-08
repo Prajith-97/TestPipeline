@@ -23,6 +23,6 @@ public class EvenNumber {
 
         System.out.println(even);
         System.out.println(even);
-        System.out.println(even);
+
     }
 }
