@@ -46,7 +46,7 @@ pipeline {
                         echo "👉 MASTER branch detected"
                         echo "🔥 Triggering SMOKE tests..."
 
-                        build job: 'QA-Automation-Pipeline/qa',
+                        build job: 'Framework CI/CD/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
                               ],
@@ -56,7 +56,7 @@ pipeline {
 
                         echo "🧪 Triggering REGRESSION tests..."
 
-                        build job: 'QA-Automation-Pipeline/qa',
+                        build job: 'Framework CI/CD/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'regression')
                               ],
