@@ -1,38 +1,12 @@
 pipeline {
     agent any
 
-    environment {
-        TRIGGER_SMOKE = "false"
-        TRIGGER_REGRESSION = "false"
-    }
-
     stages {
 
         stage('Checkout') {
             steps {
+                echo "📥 Checking out code..."
                 checkout scm
-            }
-        }
-
-        stage('Detect Deployment Flow') {
-            steps {
-                script {
-                    echo "🔍 BRANCH_NAME: ${env.BRANCH_NAME}"
-
-                    if (env.BRANCH_NAME == "qa") {
-                        echo "✅ Code deployed to QA → Trigger Smoke Tests"
-                        env.TRIGGER_SMOKE = "true"
-                    }
-
-                    if (env.BRANCH_NAME == "master") {
-                        echo "✅ Code deployed to PROD → Trigger Smoke + Regression"
-                        env.TRIGGER_SMOKE = "true"
-                        env.TRIGGER_REGRESSION = "true"
-                    }
-
-                    echo "TRIGGER_SMOKE: ${env.TRIGGER_SMOKE}"
-                    echo "TRIGGER_REGRESSION: ${env.TRIGGER_REGRESSION}"
-                }
             }
         }
 
@@ -43,47 +17,72 @@ pipeline {
             }
         }
 
-        stage('Trigger Smoke Tests') {
-            when {
-                expression {
-                    return env.TRIGGER_SMOKE?.trim() == "true"
-                }
-            }
+        stage('Trigger QA Automation') {
             steps {
-                echo "🔥 Triggering Smoke Tests..."
+                script {
 
-                build job: 'QA-Automation-Pipeline/qa',
-                      parameters: [
-                          string(name: 'TEST_TYPE', value: 'smoke')
-                      ],
-                      wait: true
-            }
-        }
+                    echo "========================================"
+                    echo "🔍 BRANCH DETECTED: ${env.BRANCH_NAME}"
+                    echo "========================================"
 
-        stage('Trigger Regression Tests') {
-            when {
-                expression {
-                    return env.TRIGGER_REGRESSION?.trim() == "true"
+                    // ✅ QA Branch → Only Smoke
+                    if (env.BRANCH_NAME == "qa") {
+
+                        echo "👉 QA branch detected"
+                        echo "🔥 Triggering SMOKE tests only..."
+
+                        build job: 'QA-Automation-Pipeline/qa',
+                              parameters: [
+                                  string(name: 'TEST_TYPE', value: 'smoke')
+                              ],
+                              wait: true
+
+                        echo "✅ Smoke tests completed"
+                    }
+
+                    // ✅ MASTER Branch → Smoke + Regression
+                    else if (env.BRANCH_NAME == "master") {
+
+                        echo "👉 MASTER branch detected"
+                        echo "🔥 Triggering SMOKE tests..."
+
+                        build job: 'QA-Automation-Pipeline/qa',
+                              parameters: [
+                                  string(name: 'TEST_TYPE', value: 'smoke')
+                              ],
+                              wait: true
+
+                        echo "✅ Smoke tests completed"
+
+                        echo "🧪 Triggering REGRESSION tests..."
+
+                        build job: 'QA-Automation-Pipeline/qa',
+                              parameters: [
+                                  string(name: 'TEST_TYPE', value: 'regression')
+                              ],
+                              wait: true
+
+                        echo "✅ Regression tests completed"
+                    }
+
+                    // ✅ Other branches → No tests
+                    else {
+                        echo "⚠️ No QA tests configured for branch: ${env.BRANCH_NAME}"
+                    }
                 }
-            }
-            steps {
-                echo "🧪 Triggering Regression Tests..."
-
-                build job: 'QA-Automation-Pipeline/qa',
-                      parameters: [
-                          string(name: 'TEST_TYPE', value: 'regression')
-                      ],
-                      wait: true
             }
         }
     }
 
     post {
         success {
-            echo "✅ Dev Pipeline completed successfully"
+            echo "🎉 PIPELINE SUCCESS"
         }
         failure {
-            echo "❌ Dev Pipeline failed"
+            echo "❌ PIPELINE FAILED"
+        }
+        always {
+            echo "📊 Pipeline execution completed for branch: ${env.BRANCH_NAME}"
         }
     }
 }
