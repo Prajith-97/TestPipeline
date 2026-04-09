@@ -1,6 +1,11 @@
 pipeline {
     agent any
 
+    environment {
+        TRIGGER_SMOKE = "false"
+        TRIGGER_REGRESSION = "false"
+    }
+
     stages {
 
         stage('Checkout') {
@@ -14,30 +19,19 @@ pipeline {
                 script {
                     echo "🔍 BRANCH_NAME: ${env.BRANCH_NAME}"
 
-                    // ✅ Use normal variables (NOT env)
-                    smokeTrigger = false
-                    regressionTrigger = false
-
                     if (env.BRANCH_NAME == "qa") {
                         echo "✅ Code deployed to QA → Trigger Smoke Tests"
-                        smokeTrigger = true
+                        env.TRIGGER_SMOKE = "true"
                     }
 
                     if (env.BRANCH_NAME == "master") {
                         echo "✅ Code deployed to PROD → Trigger Smoke + Regression"
-                        smokeTrigger = true
-                        regressionTrigger = true
+                        env.TRIGGER_SMOKE = "true"
+                        env.TRIGGER_REGRESSION = "true"
                     }
 
-                    // ✅ Store in current build context
-                    currentBuild.description = "SMOKE=${smokeTrigger}, REG=${regressionTrigger}"
-
-                    // ✅ Save globally using Groovy binding
-                    binding.setVariable("SMOKE_TRIGGER", smokeTrigger)
-                    binding.setVariable("REG_TRIGGER", regressionTrigger)
-
-                    echo "SMOKE_TRIGGER: ${SMOKE_TRIGGER}"
-                    echo "REG_TRIGGER: ${REG_TRIGGER}"
+                    echo "TRIGGER_SMOKE: ${env.TRIGGER_SMOKE}"
+                    echo "TRIGGER_REGRESSION: ${env.TRIGGER_REGRESSION}"
                 }
             }
         }
@@ -51,35 +45,35 @@ pipeline {
 
         stage('Trigger Smoke Tests') {
             when {
-                expression { return SMOKE_TRIGGER == true }
+                expression {
+                    return env.TRIGGER_SMOKE?.trim() == "true"
+                }
             }
             steps {
-                script {
-                    echo "🔥 Triggering Smoke Tests..."
+                echo "🔥 Triggering Smoke Tests..."
 
-                    build job: 'QA-Automation-Pipeline/qa',
-                          parameters: [
-                              string(name: 'TEST_TYPE', value: 'smoke')
-                          ],
-                          wait: true
-                }
+                build job: 'QA-Automation-Pipeline/qa',
+                      parameters: [
+                          string(name: 'TEST_TYPE', value: 'smoke')
+                      ],
+                      wait: true
             }
         }
 
         stage('Trigger Regression Tests') {
             when {
-                expression { return REG_TRIGGER == true }
+                expression {
+                    return env.TRIGGER_REGRESSION?.trim() == "true"
+                }
             }
             steps {
-                script {
-                    echo "🧪 Triggering Regression Tests..."
+                echo "🧪 Triggering Regression Tests..."
 
-                    build job: 'QA-Automation-Pipeline/qa',
-                          parameters: [
-                              string(name: 'TEST_TYPE', value: 'regression')
-                          ],
-                          wait: true
-                }
+                build job: 'QA-Automation-Pipeline/qa',
+                      parameters: [
+                          string(name: 'TEST_TYPE', value: 'regression')
+                      ],
+                      wait: true
             }
         }
     }
