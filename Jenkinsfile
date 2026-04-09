@@ -31,7 +31,7 @@ pipeline {
                         echo "👉 QA branch detected"
                         echo "🔥 Triggering SMOKE tests only..."
 
-                        build job: 'QA-Automation-Pipeline/qa',
+                        build job: 'Framework CI/CD/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
                               ],
