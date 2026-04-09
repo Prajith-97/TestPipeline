@@ -31,7 +31,7 @@ pipeline {
                         echo "👉 QA branch detected"
                         echo "🔥 Triggering SMOKE tests only..."
 
-                        build job: 'Framework CI/CD/master',
+                        build job: 'Multibranch Pipeline/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
                               ],
@@ -46,7 +46,7 @@ pipeline {
                         echo "👉 MASTER branch detected"
                         echo "🔥 Triggering SMOKE tests..."
 
-                        build job: 'Framework CI/CD/master',
+                        build job: 'Multibranch Pipeline/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
                               ],
@@ -56,7 +56,7 @@ pipeline {
 
                         echo "🧪 Triggering REGRESSION tests..."
 
-                        build job: 'Framework CI/CD/master',
+                        build job: 'Multibranch Pipeline/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'regression')
                               ],
