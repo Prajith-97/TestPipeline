@@ -14,36 +14,35 @@ pipeline {
             }
         }
 
-        stage('Detect Merge Flow') {
+        stage('Detect Deployment Flow') {
             steps {
                 script {
-                    def sourceBranch = env.CHANGE_BRANCH ?: env.BRANCH_NAME
-                    def targetBranch = env.CHANGE_TARGET ?: ""
+                    echo "🔍 BRANCH_NAME: ${env.BRANCH_NAME}"
 
-                    echo "🔍 Source Branch: ${sourceBranch}"
-                    echo "🎯 Target Branch: ${targetBranch}"
-
-                    // Case 1: dev → qa
-                    if (sourceBranch == "dev" && targetBranch == "qa") {
-                        echo "✅ Detected dev → qa merge (Smoke required)"
+                    // ✅ When code is in QA branch → trigger smoke
+                    if (env.BRANCH_NAME == "qa") {
+                        echo "✅ Code deployed to QA → Trigger Smoke Tests"
                         env.TRIGGER_SMOKE = "true"
                     }
 
-                    // Case 2: qa → master
-                    if (sourceBranch == "qa" && targetBranch == "master") {
-                        echo "✅ Detected qa → master merge (Smoke + Regression required)"
+                    //✅ When code is in master → trigger full regression
+                    if (env.BRANCH_NAME == "master") {
+                        echo "✅ Code deployed to PROD → Trigger Smoke + Regression"
                         env.TRIGGER_SMOKE = "true"
                         env.TRIGGER_REGRESSION = "true"
                     }
+
+                    echo "TRIGGER_SMOKE: ${env.TRIGGER_SMOKE}"
+                    echo "TRIGGER_REGRESSION: ${env.TRIGGER_REGRESSION}"
                 }
             }
         }
 
-        stage('Build & Deploy to QA') {
+        stage('Build & Deploy') {
             steps {
                 echo "🏗️ Building application..."
-                echo "🚀 Deploying to QA environment..."
-                // Add actual build + deployment commands here
+                echo "🚀 Deploying to ${env.BRANCH_NAME} environment..."
+                // Add actual build & deployment commands here
             }
         }
 
@@ -55,11 +54,11 @@ pipeline {
                 script {
                     echo "🔥 Triggering Smoke Tests..."
 
-                    build job: 'QA-Automation-Pipeline/master',
+                    build job: 'QA-Automation-Pipeline/qa',   // multibranch job
                           parameters: [
                               string(name: 'TEST_TYPE', value: 'smoke')
                           ],
-                          wait: true   // 👈 IMPORTANT (visibility)
+                          wait: true
                 }
             }
         }
@@ -72,11 +71,11 @@ pipeline {
                 script {
                     echo "🧪 Triggering Regression Tests..."
 
-                    build job: 'QA-Automation-Pipeline/qa',
+                    build job: 'QA-Automation-Pipeline/qa',   // same QA branch
                           parameters: [
                               string(name: 'TEST_TYPE', value: 'regression')
                           ],
-                          wait: true   // 👈 IMPORTANT
+                          wait: true
                 }
             }
         }
@@ -87,7 +86,7 @@ pipeline {
             echo "✅ Dev Pipeline completed successfully"
         }
         failure {
-            echo "❌ Dev Pipeline failed (check triggered QA jobs)"
+            echo "❌ Dev Pipeline failed"
         }
     }
 }
