@@ -1,7 +1,8 @@
 package javaPrograms.collection;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.w3c.dom.stylesheets.LinkStyle;
+
+import java.util.*;
 
 public class RemoveDuplicateArray {
     public static void main(String[] args) {

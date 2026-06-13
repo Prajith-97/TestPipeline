@@ -1,7 +1,7 @@
 package javaPrograms.collection;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Duplicates {
     public static void main(String[] args){
@@ -15,6 +15,15 @@ public class Duplicates {
                 s.add(a);
             }
         }
+        System.out.println(s);
         System.out.println(d);
+        List<Integer> list =
+                Arrays.stream(ar)        // IntStream
+                        .boxed()           // int → Integer
+                        .collect(Collectors.toCollection(ArrayList::new)); //converting array to array list
+        System.out.println(list);
+        Set<Integer>su = new HashSet<>(list);
+        System.out.println(su);
     }
+
 }

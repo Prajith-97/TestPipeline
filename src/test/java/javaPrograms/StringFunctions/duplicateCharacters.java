@@ -25,5 +25,15 @@ public class duplicateCharacters {
              System.out.println(cha +":"+m.get(cha));
          }
         }
+        String s = "programming";
+        StringBuilder result = new StringBuilder();
+
+        for (char ch1 : s.toCharArray()) {
+            if (result.indexOf(String.valueOf(ch1)) == -1) {
+                result.append(ch1);
+            }
+        }
+
+        System.out.println(result);
     }
 }

@@ -34,6 +34,7 @@ pipeline {
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
+                                  string(name: 'ENV', value: 'qa')
                               ],
                               wait: true
 
@@ -49,6 +50,7 @@ pipeline {
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
                                   string(name: 'TEST_TYPE', value: 'smoke')
+                                  string(name: 'ENV', value: 'prod')
                               ],
                               wait: true
 

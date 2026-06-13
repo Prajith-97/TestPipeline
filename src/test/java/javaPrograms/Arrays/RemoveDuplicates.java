@@ -20,7 +20,8 @@ public class RemoveDuplicates {
         int index = 0;
 
         for (int num : set) {
-            result[index++] = num;
+            result[index] = num;
+            index++;
         }
 
         return result;
