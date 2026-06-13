@@ -12,8 +12,10 @@ pipeline {
 
         stage('Build & Deploy') {
             steps {
-                echo "🏗️ Building application..."
-                echo "🚀 Deploying to ${env.BRANCH_NAME} environment..."
+                script {
+                    echo "🏗️ Building application..."
+                    echo "🚀 Deploying to ${env.BRANCH_NAME} environment..."
+                }
             }
         }
 
@@ -25,15 +27,23 @@ pipeline {
                     echo "🔍 BRANCH DETECTED: ${env.BRANCH_NAME}"
                     echo "========================================"
 
-                    // ✅ QA Branch → Only Smoke
-                    if (env.BRANCH_NAME == "qa") {
+                    // DEV Branch
+                    if (env.BRANCH_NAME == "dev") {
+
+                        echo "👉 DEV branch detected"
+                        echo "⚠️ Skipping automation tests"
+
+                    }
+
+                    // QA Branch
+                    else if (env.BRANCH_NAME == "qa") {
 
                         echo "👉 QA branch detected"
-                        echo "🔥 Triggering SMOKE tests only..."
+                        echo "🔥 Triggering SMOKE tests..."
 
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
-                                  string(name: 'TEST_TYPE', value: 'smoke')
+                                  string(name: 'TEST_TYPE', value: 'smoke'),
                                   string(name: 'ENV', value: 'qa')
                               ],
                               wait: true
@@ -41,15 +51,16 @@ pipeline {
                         echo "✅ Smoke tests completed"
                     }
 
-                    // ✅ MASTER Branch → Smoke + Regression
+                    // MASTER Branch
                     else if (env.BRANCH_NAME == "master") {
 
                         echo "👉 MASTER branch detected"
+
                         echo "🔥 Triggering SMOKE tests..."
 
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
-                                  string(name: 'TEST_TYPE', value: 'smoke')
+                                  string(name: 'TEST_TYPE', value: 'smoke'),
                                   string(name: 'ENV', value: 'prod')
                               ],
                               wait: true
@@ -60,16 +71,16 @@ pipeline {
 
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
-                                  string(name: 'TEST_TYPE', value: 'regression')
+                                  string(name: 'TEST_TYPE', value: 'regression'),
+                                  string(name: 'ENV', value: 'prod')
                               ],
                               wait: true
 
                         echo "✅ Regression tests completed"
                     }
 
-                    // ✅ Other branches → No tests
                     else {
-                        echo "⚠️ No QA tests configured for branch: ${env.BRANCH_NAME}"
+                        echo "⚠️ No automation configured for branch: ${env.BRANCH_NAME}"
                     }
                 }
             }
@@ -77,12 +88,15 @@ pipeline {
     }
 
     post {
+
         success {
             echo "🎉 PIPELINE SUCCESS"
         }
+
         failure {
             echo "❌ PIPELINE FAILED"
         }
+
         always {
             echo "📊 Pipeline execution completed for branch: ${env.BRANCH_NAME}"
         }
