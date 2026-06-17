@@ -39,7 +39,7 @@ pipeline {
                     else if (env.BRANCH_NAME == "qa") {
 
                         echo "👉 QA branch detected"
-                        echo "🔥 Triggering SMOKE tests..."
+                        echo "🔥 Triggering SMOKE tests....."
 
                         build job: 'Multibranch Pipeline/master',
                               parameters: [
