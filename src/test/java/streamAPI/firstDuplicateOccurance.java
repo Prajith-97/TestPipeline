@@ -21,5 +21,6 @@ public class firstDuplicateOccurance {
     public static void main(String[] args){
      firstDuplicateOccurance first = new firstDuplicateOccurance();
      first.printFirstDuplicate();
+     first.printFirstDuplicate();
     }
 }
