@@ -22,5 +22,6 @@ public class firstDuplicateOccurance {
      firstDuplicateOccurance first = new firstDuplicateOccurance();
      first.printFirstDuplicate();
      first.printFirstDuplicate();
+     first.printFirstDuplicate();
     }
 }
